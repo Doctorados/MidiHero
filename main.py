@@ -12,7 +12,7 @@ run = True
 lastMsg = 0
 lastObstacle = 0
 pygame.init()
-file ="./GTA.mid"
+file ="./Dust.mid"
 busName = mido.get_output_names()[0]
 bus = mido.open_output(busName)
 mid = mido.MidiFile(file)
@@ -29,7 +29,7 @@ messages = midiHeroTrack.track
 instruments = midiHeroTrack.instruments
 print(messages)
 print(instruments)
-obstacles = gameObjects.create_obstacles(messages,  {1,2,3,4,5,6,7,8,9,10,11,12,13,14,15})
+obstacles = gameObjects.create_obstacles(messages,  {1,2,3,4,5,6})
 obstaclesOnscreen = []
 
 def output():
