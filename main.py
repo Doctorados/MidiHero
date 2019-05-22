@@ -18,7 +18,7 @@ bus = mido.open_output(busName)
 mid = mido.MidiFile(file)
 tps = 160
 tick = 0
-rows = 12
+rows = 128
 clock = pygame.time.Clock()
 print(pygame.display.get_init())
 print(pygame.display.get_driver())
@@ -76,7 +76,7 @@ def logic():
             break
         if x.start == tick:
             lastObstacle += 1
-            x.rect = pygame.Rect((1280 // rows) * (x.note % rows), 0, 50, x.length)
+            x.rect = pygame.Rect((1280 // rows) * (x.note % rows), 0, 10, x.length)
             obstaclesOnscreen.append(x)
 
 while run:
