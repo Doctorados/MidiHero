@@ -12,14 +12,13 @@ run = True
 lastMsg = 0
 lastObstacle = 0
 pygame.init()
-file ="./number_one.mid"
+file ="./GTA.mid"
 busName = mido.get_output_names()[0]
 bus = mido.open_output(busName)
 mid = mido.MidiFile(file)
-tps = 162
+tps = 160
 tick = 0
 rows = 12
-keybinds = [pygame.K_a, pygame.K_s, pygame.K_d, pygame.K_f, pygame.K_g, pygame.K_h, pygame.K_j, pygame.K_k]
 clock = pygame.time.Clock()
 print(pygame.display.get_init())
 print(pygame.display.get_driver())
@@ -30,7 +29,7 @@ messages = midiHeroTrack.track
 instruments = midiHeroTrack.instruments
 print(messages)
 print(instruments)
-obstacles = gameObjects.create_obstacles(messages,  {2})
+obstacles = gameObjects.create_obstacles(messages,  {1,2,3,4,5,6,7,8,9,10,11,12,13,14,15})
 obstaclesOnscreen = []
 
 def output():
@@ -42,6 +41,7 @@ def output():
 
 def input():
     global tps
+    keybinds = [pygame.K_a, pygame.K_s, pygame.K_d, pygame.K_f, pygame.K_g, pygame.K_h, pygame.K_j, pygame.K_k]
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             run = False
