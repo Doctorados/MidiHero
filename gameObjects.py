@@ -4,11 +4,16 @@ import random
 class obstacle:
     def __init__(self, channel, note, start, end):
         self.channel = channel
+        self.row = 0
         self.note = note
         self.start = start
         self.end = end
-        self.length = (end - start) /20
+        self.length = (end - start)
         self.rect = pygame.Rect(0, 0, 0, 0)
+        self.fill = 1
+    def isPlayed(self, key):
+        return self.rect.colliderect(key.rect)
+
     def debugMsg(self):
         print("Channel", end=" ")
         print(self.channel)
@@ -22,10 +27,11 @@ class obstacle:
         print(self.length)
 
 class pianoKey:
-    def __init__(self, pos):
+    def __init__(self, row, rect):
         self.line = 1
-        self.pos = pos
+        self.row = row
         self.active = False
+        self.rect = rect
     def switch(self, val):
         if val:
             self.line = 0
@@ -33,6 +39,15 @@ class pianoKey:
         else:
             self.active = False
             self.line = 1
+class score:
+    def __init_(self, max):
+        self.max = max
+        self.missed = 0
+        self.wrongKey = 0
+    def calc(tick):
+        self.multiplier = tick / wrongKey
+        self.score = max - missed
+        self.final =(score * multiplier)
 
 def onlyNotes(msg):
     if msg.type == "note_on":
@@ -44,10 +59,10 @@ def create_obstacles(messages, channels): #creates list of obstacles
     obstacles = []
     messagesNotes= [x for x in messages if x.type == "note_on" or x.type == "note_off"]
     newO = None #new obstacle to be added
-    for msg in messagesNotes:
+    for i,msg in enumerate(messagesNotes):
         if msg.type == "note_on":
             if msg.velocity != 0 and msg.channel in channels:
-                nextMsg = next((x for x in messagesNotes if x.channel==msg.channel and x.note==msg.note), None) #find next message to end obstacle (might use nexts)
+                nextMsg = next((x for x in messagesNotes[i+1:] if x.channel==msg.channel and x.note==msg.note), None) #find next message to end obstacle (might use nexts)
                 if type(nextMsg) != None:
                     newO=obstacle(msg.channel, msg.note, msg.time, nextMsg.time)
                     obstacles.append(newO)
