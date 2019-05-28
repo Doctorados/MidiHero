@@ -14,17 +14,6 @@ class obstacle:
     def isPlayed(self, key):
         return self.rect.colliderect(key.rect)
 
-    def debugMsg(self):
-        print("Channel", end=" ")
-        print(self.channel)
-        print("note", end=" ")
-        print(self.note)
-        print("start at tick", end=" ")
-        print(self.start)
-        print("end at tick", end=" ")
-        print(self.end)
-        print("length", end=" ")
-        print(self.length)
 
 class pianoKey:
     def __init__(self, row, rect):
@@ -39,15 +28,6 @@ class pianoKey:
         else:
             self.active = False
             self.line = 1
-class score:
-    def __init_(self, max):
-        self.max = max
-        self.missed = 0
-        self.wrongKey = 0
-    def calc(tick):
-        self.multiplier = tick / wrongKey
-        self.score = max - missed
-        self.final =(score * multiplier)
 
 def onlyNotes(msg):
     if msg.type == "note_on":
