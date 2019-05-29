@@ -14,6 +14,43 @@ class obstacle:
     def isPlayed(self, key):
         return self.rect.colliderect(key.rect)
 
+class score:
+    def __init__(self):
+        self.multiplier = 1.0
+        self.scored = 0
+        self.wrongKey = 0
+        self.max = 0
+        self.final = 0
+    def calc_score(self):
+         missed = self.max - self.scored
+         print("Maximal erreichbare Punktzahl", end=" ")
+         print(self.max)
+         print("Erreichte Punktzahl", end=" ")
+         print(self.scored)
+         print("Falsche Taste", end=" ")
+         print(self.wrongKey)
+         self.multiplier = (self.max / (self.wrongKey + self.max +1))
+         print("Effizienz:", end=" ")
+         print(int(self.multiplier *100), end="%")
+         print("")
+         print("Final Score:", end=" ")
+         self.final = round(self.scored * self.multiplier)
+
+
+class progressBar:
+    def __init__(self, max, bps, tps):
+        self.progress = 0
+        self.max = max
+        self.flashTime = tps / (int(bps) * 2)
+        self.flash = 0
+    def get_bar(self, tick):
+        self.progress = int((1280 * (tick / self.max)))
+        bar = pygame.Rect(0, 0, self.progress, 10)
+        return bar
+    def get_flash(self, tick):
+        if tick % self.flashTime == 0:
+            self.flash = 1 - self.flash
+        return self.flash
 
 class pianoKey:
     def __init__(self, row, rect):
