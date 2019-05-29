@@ -9,6 +9,10 @@ class midiHeroTrack:
     def get_bpm(self):
         bpm = self.bps * 60
         return bpm
+    def update_length(self, tick):
+        if tick > self.length:
+            self.length = tick
+
 def midi_tick2(mid, gametps):
     new = midiHeroTrack()
     tpb = mid.ticks_per_beat
@@ -29,19 +33,14 @@ def midi_tick2(mid, gametps):
             if not msg.is_meta:
                 if msg.type =="program_change": #get insturments
                     new.instruments[msg.channel] = msg.program
-                #if msg.type == "note_on": #ticks to game ticks
-                #print(multiplier)
-                #print(msg)
                 msg.time = int(round(float(msg.time) * multiplier))
-                #print(msg)
                 tick = tick + msg.time
                 msg.time = tick
-                #print(msg)
                 new.track.append(msg)
+                new.update_length(tick)
     print("beats per second", end=" ")
     print(new.bps)
     print("beats per Minute", end=" ")
     print(new.get_bpm())
-    new.length = tick
     new.track.sort(key=lambda x: x.time, reverse=False)
     return new

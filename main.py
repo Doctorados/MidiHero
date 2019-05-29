@@ -13,7 +13,7 @@ RED = ( 255, 0, 0)
 
 run = True
 pygame.init()
-file ="./midi/south_park.mid"
+file ="./midi/darude.mid"
 tps = 160
 rows = 4
 clock = pygame.time.Clock()
@@ -59,7 +59,7 @@ while run:
          logic(level)
          output(level)
     print(level.score.calc_score())
-    score= score.score(level.score)
+    score= score.score(level.score, tps)
     while True:
         input()
         logic(score)

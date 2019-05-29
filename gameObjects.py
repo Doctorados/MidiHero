@@ -35,7 +35,7 @@ class progressBar:
         self.flashTime = tps / (int(bps) * 2)
         self.flash = 0
     def get_bar(self, tick):
-        self.progress = int((1280 * (tick / self.max)))
+        self.progress = int((1280 * (tick / (self.max +660))))
         bar = pygame.Rect(0, 0, self.progress, 10)
         return bar
     def get_flash(self, tick):

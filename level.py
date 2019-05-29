@@ -22,6 +22,7 @@ class level:
         self.score = gameObjects.score() #create score instance
         self.progressBar = gameObjects.progressBar(self.midiHeroTrack.length, self.midiHeroTrack.bps, self.tps)
         self.run = True #run variable
+
     def gen_keys(self):
         keys = []
         for i in range(0, self.rows):
