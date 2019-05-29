@@ -21,19 +21,10 @@ class score:
         self.wrongKey = 0
         self.max = 0
         self.final = 0
+        self.efficiency = 100
     def calc_score(self):
-         missed = self.max - self.scored
-         print("Maximal erreichbare Punktzahl", end=" ")
-         print(self.max)
-         print("Erreichte Punktzahl", end=" ")
-         print(self.scored)
-         print("Falsche Taste", end=" ")
-         print(self.wrongKey)
          self.multiplier = (self.max / (self.wrongKey + self.max +1))
-         print("Effizienz:", end=" ")
-         print(int(self.multiplier *100), end="%")
-         print("")
-         print("Final Score:", end=" ")
+         self.efficiency = int(self.multiplier *100)
          self.final = round(self.scored * self.multiplier)
 
 

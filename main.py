@@ -13,7 +13,7 @@ RED = ( 255, 0, 0)
 
 run = True
 pygame.init()
-file ="./midi/portal.mid"
+file ="./midi/south_park.mid"
 tps = 160
 rows = 4
 clock = pygame.time.Clock()
