@@ -8,7 +8,7 @@ class midiHeroTrack:
         self.length = 0
     def get_bpm(self):
         bpm = self.bps * 60
-        return bpm
+        return round(bpm)
     def update_length(self, tick):
         if tick > self.length:
             self.length = tick
@@ -24,7 +24,6 @@ def midi_tick2(mid, gametps):
     for i, track in enumerate(mid.tracks):
         tick = 0
         for msg in track:
-            print(msg)
             if msg.type == "set_tempo":
                 mspb = msg.tempo
                 new.bps = 1000000 / mspb #beats per second
