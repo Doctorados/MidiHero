@@ -97,7 +97,7 @@ class level:
             self.run = False
             return score(self.score, self.tps, self.rows)
         else:
-            return score(self.score, self.tps, self.rows)
+            return self
 
 class score:
     def __init__(self, score, tps, rows):
@@ -113,7 +113,7 @@ class score:
         line1 = list("Notes hit: " + str(self.score.scored))
         line2 = list("Efficiency: " + str(self.score.efficiency) +"%")
         line3 = list("Final Score: " + str(self.score.final))
-        line4 = "Press Action1 to continue"
+        line4 = "Press Key1 to continue"
         for i in range (0, (self.tick//(self.tps//20))):
             text1 = font.render("".join(line1[0:i]), False, colors["secondary"])
             text2 = font.render("".join(line2[0:i]), False, colors["secondary"])
@@ -143,18 +143,20 @@ class menu:
         self.nextScene = self
 
     def draw(self, screen, colors, font):
-        line1 = "Press Action1 to select file"
-        text1 = font.render(line1, False, colors["secondary"])
-        line2 = "Press Action2 for settings"
-        text2 = font.render(line2, False, colors["secondary"])
-        screen.blit(text1, (420, 100))
-        screen.blit(text2, (420, 400))
+        strings = [
+            "Press Key1 to select file",
+            "Press Key2 for Levels",
+            "Press Key3 for settigns"
+        ]
+        for i,x in enumerate(strings):
+            text = font.render(x, False, colors["secondary"])
+            screen.blit(text, (420, 100*(i+1)))
 
     def inp(self):
         if self.inpQ[0]:
-            root = tkinter.Tk()
+            window = tkinter.Tk()
             file = tkinter.filedialog.askopenfilename()
-            root.destroy()
+            window.destroy()
             self.nextScene = loading(self.rows, file, self.tps)
 
     def update(self):
@@ -175,12 +177,13 @@ class loading:
         (threading.Thread(target=self.parseFile)).start()
 
     def draw(self, screen, colors, font):
-        line1 = "Loading level"
-        text1 = font.render(line1, False, colors["secondary"])
-        line2 = "." * ((self.tick//(self.tps//10))%10)
-        text2 = font.render(line2, False, colors["secondary"])
-        screen.blit(text1, (420, 100))
-        screen.blit(text2, (420, 400))
+        strings = [
+            "Loading level",
+            "." * ((self.tick//(self.tps//10))%10),
+        ]
+        for i,x in enumerate(strings):
+            text = font.render(x, False, colors["secondary"])
+            screen.blit(text, (420, 100*(i+1)))
 
     def update(self):
         self.tick +=1
@@ -194,30 +197,48 @@ class loading:
         self.nextScene = startlvl(self.rows, self.file, midiHeroTrack, self.tps)
 
 class startlvl:
-    def __init__(self, rows, file, track, tps):
+    def __init__(self, rows, file, track, tps, channels = [0]):
         self.inpQ = [False] *rows
+        self.inpQNum = []
+        self.tempInp = ""
         self.file = file
+        self.tps = tps
+        self.rows = rows
         self.track = track
         self.nextScene = self
+        self.channels = channels
 
     def draw(self, screen, colors, font):
-
-        line1 ="File: " + ((self.file).split("/"))[-1]
-        text1 = font.render(line1, False, colors["secondary"])
-        line2 = "BPM: " + str(self.track.get_bpm())
-        text2 = font.render(line2, False, colors["secondary"])
-        line3 = "Press Action1 to start"
-        text3 = font.render(line3, False, colors["secondary"])
-        screen.blit(text1, (420, 100))
-        screen.blit(text2, (420, 200))
-        screen.blit(text3, (420, 400))
+        strings = [
+            "File: " + ((self.file).split("/"))[-1],
+            "BPM: " + str(self.track.get_bpm()),
+            "Channels: " +str(self.channels),
+            "Press Key1 to start",
+            "Press number keys and return",
+            "to (de)select channels"
+        ]
+        for i,x in enumerate(strings):
+            text = font.render(x, False, colors["secondary"])
+            screen.blit(text, (420, 100*(i+1)))
 
     def inp(self):
         if self.inpQ[0]:
-            pass
+            self.nextScene = level(self.tps, self.channels, self.rows, self.track)
+        for x in self.inpQNum:
+            if pygame.key.name(x) == "return":
+                if int(self.tempInp) in self.channels:
+                    self.channels.remove(int(self.tempInp))
+                    self.tempInp = ""
+                else:
+                    if int(self.tempInp) < 16:
+                        self.channels.append(int(self.tempInp))
+                self.tempInp = ""
+            else:
+                self.tempInp += pygame.key.name(x)
+            self.inpQNum.remove(x)
 
     def update(self):
         self.inp()
 
     def next_scene(self):
-        return self
+        return self.nextScene
