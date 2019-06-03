@@ -60,12 +60,12 @@ class pianoKey:
 class menuButton:
     def __init__(self, rect):
         self.rect = rect
-    def draw(self, screen, color, string, font):
+    def draw(self, screen, color, string, font, line = 1):
         text = font.render(string, False, color)
-        pygame.draw.rect(screen, color, self.rect, 1)
+        pygame.draw.rect(screen, color, self.rect, line)
         screen.blit(text, (self.rect[0] +5, self.rect[1]+(self.rect[3]/2)))
-    def get_press(self):
-        for event in pygame.event.get():
+    def get_press(self, inpQ):
+        for event in inpQ:
             if event.type == pygame.MOUSEBUTTONUP:
                 print(self.rect)
                 print(pygame.mouse.get_pos())
@@ -73,8 +73,6 @@ class menuButton:
                     return True
                 else:
                     return False
-            if event.type == pygame.QUIT:
-                sys.exit
 
 def onlyNotes(msg):
     if msg.type == "note_on":

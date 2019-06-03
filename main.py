@@ -1,30 +1,30 @@
+import pygame
 import mido
 import time
-import pygame.midi
 import gameObjects
 import parse
 import scenes
+import globalConst
+import sys
 
-pygame.init()
-tps = 120
-rows = 4
+
 clock = pygame.time.Clock()
-size = (1280, 720) #window size
-screen = pygame.display.set_mode(size)
-scene = scenes.menu(rows, tps)
-colors = {"primary": ( 255, 255, 255),
-    "secondary": ( 0, 255, 0),
-    "background": ( 0, 0, 0),
-    }
-font = pygame.font.SysFont('Courier New', 30, bold=True)
+screen = pygame.display.set_mode(globalConst.size)
+scene = scenes.menu()
 
 def output(scene):
-    screen.fill(colors["background"])
-    scene.draw(screen, colors, font)
-    pygame.display.flip()
+    screen.fill(globalConst.colors["background"])
+    scene.draw(screen)
+    pygame.display.update()
 
 while True:
-     scene.update()
-     output(scene)
-     scene = scene.next_scene()
-     clock.tick(tps)
+    inpQ = pygame.event.get()
+    if any(x.type == pygame.QUIT for x in inpQ): #check for window close
+        print("BRUDER MUSS LOS")
+        pygame.display.quit()
+        pygame.quit()
+        sys.exit(1)
+    scene.update(inpQ)
+    output(scene)
+    scene = scene.next_scene()
+    clock.tick(globalConst.tps)
