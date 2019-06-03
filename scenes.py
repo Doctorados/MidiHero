@@ -82,8 +82,15 @@ class level:
         pygame.draw.rect(screen, colors["primary"],self.progressBar.get_bar(self.tick), self.progressBar.get_flash(self.tick) )
 
     def inp(self):
-        for i,x in enumerate(self.inpQ):
-                self.keys[i].switch(x)
+        keybinds = [pygame.K_a, pygame.K_d, pygame.K_j, pygame.K_l]
+        for event in pygame.event.get(pygame.KEYDOWN):
+            if event.key in keybinds:
+                i = keybinds.index(event.key)
+                self.keys[i].switch(True)
+        for event in pygame.event.get(pygame.KEYUP):
+            if event.key in keybinds:
+                i = keybinds.index(event.key)
+                self.keys[i].switch(False)
 
     def update(self):
         self.inp()
@@ -137,23 +144,20 @@ class score:
 
 class menu:
     def __init__(self, rows, tps):
-        self.inpQ = [False] *rows
         self.rows = rows
         self.tps = tps
         self.nextScene = self
+        self.btn1 = gameObjects.menuButton(pygame.Rect(100,100,1080,100))
+        self.btn2 = gameObjects.menuButton(pygame.Rect(100,300,1080,100))
+        self.btn3 = gameObjects.menuButton(pygame.Rect(100,500,1080,100))
 
     def draw(self, screen, colors, font):
-        strings = [
-            "Press Key1 to select file",
-            "Press Key2 for Levels",
-            "Press Key3 for settigns"
-        ]
-        for i,x in enumerate(strings):
-            text = font.render(x, False, colors["secondary"])
-            screen.blit(text, (420, 100*(i+1)))
+        self.btn1.draw(screen, colors["secondary"], "Custom Level", font)
+        self.btn2.draw(screen, colors["secondary"], "TEXT", font)
+        self.btn3.draw(screen, colors["secondary"], "TEXT", font)
 
     def inp(self):
-        if self.inpQ[0]:
+        if self.btn1.get_press():
             window = tkinter.Tk()
             file = tkinter.filedialog.askopenfilename()
             window.destroy()
@@ -167,7 +171,6 @@ class menu:
 
 class loading:
     def __init__(self, rows, file, tps):
-        self.inpQ = [False] *rows
         self.file = file
         self.nextScene = self
         self.rows = rows
@@ -198,8 +201,6 @@ class loading:
 
 class startlvl:
     def __init__(self, rows, file, track, tps, channels = [0]):
-        self.inpQ = [False] *rows
-        self.inpQNum = []
         self.tempInp = ""
         self.file = file
         self.tps = tps
@@ -207,35 +208,29 @@ class startlvl:
         self.track = track
         self.nextScene = self
         self.channels = channels
+        self.box1 = gameObjects.menuButton(pygame.Rect(100,100,800,100))
+        self.box2 = gameObjects.menuButton(pygame.Rect(100,200,800,100))
+        self.box3 = gameObjects.menuButton(pygame.Rect(100,300,800,100))
+        self.btn1 = gameObjects.menuButton(pygame.Rect(100,400,800,100))
+        self.chBtns = []
+        for i in range (0, 16):
+            self.chBtns.append(gameObjects.menuButton(pygame.Rect(100+(i*50),500,50,100)))
 
     def draw(self, screen, colors, font):
-        strings = [
-            "File: " + ((self.file).split("/"))[-1],
-            "BPM: " + str(self.track.get_bpm()),
-            "Channels: " +str(self.channels),
-            "Press Key1 to start",
-            "Press number keys and return",
-            "to (de)select channels"
-        ]
-        for i,x in enumerate(strings):
-            text = font.render(x, False, colors["secondary"])
-            screen.blit(text, (420, 100*(i+1)))
+        self.box1.draw(screen, colors["secondary"], "File: " + ((self.file).split("/"))[-1], font)
+        self.box2.draw(screen, colors["secondary"], "BPM: " + str(self.track.get_bpm()), font)
+        self.box3.draw(screen, colors["secondary"], "Channels: " +str(self.channels), font)
+        self.btn1.draw(screen, colors["secondary"], "START", font)
+        for i,x in enumerate(self.chBtns):
+            x.draw(screen, colors["secondary"], str(i), font)
 
     def inp(self):
-        if self.inpQ[0]:
-            self.nextScene = level(self.tps, self.channels, self.rows, self.track)
-        for x in self.inpQNum:
-            if pygame.key.name(x) == "return":
-                if int(self.tempInp) in self.channels:
-                    self.channels.remove(int(self.tempInp))
-                    self.tempInp = ""
+        for i,x in enumerate(self.chBtns):
+            if x.get_press():
+                if i in self.channels:
+                    self.channels.remove(i)
                 else:
-                    if int(self.tempInp) < 16:
-                        self.channels.append(int(self.tempInp))
-                self.tempInp = ""
-            else:
-                self.tempInp += pygame.key.name(x)
-            self.inpQNum.remove(x)
+                    self.channels.append(i)
 
     def update(self):
         self.inp()
