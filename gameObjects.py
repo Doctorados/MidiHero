@@ -67,8 +67,6 @@ class menuButton:
     def get_press(self, inpQ):
         for event in inpQ:
             if event.type == pygame.MOUSEBUTTONUP:
-                print(self.rect)
-                print(pygame.mouse.get_pos())
                 if self.rect.collidepoint(pygame.mouse.get_pos()):
                     return True
                 else:

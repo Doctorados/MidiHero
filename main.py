@@ -9,7 +9,8 @@ import sys
 
 
 clock = pygame.time.Clock()
-screen = pygame.display.set_mode(globalConst.size)
+screen = pygame.display.set_mode(globalConst.size, pygame.HWSURFACE)
+print(pygame.display.get_driver())
 scene = scenes.menu()
 
 def output(scene):

@@ -44,7 +44,7 @@ class level:
                         x.fill = 0
                         self.activeObs.append([x.note, x.start])
                     else:
-                        self.score.wrongKey += (1 / globalConst.tps)
+                        self.score.wrongKey += ((10 / globalConst.tps)/ len(self.obstaclesOnscreen))
 
     def play_messages(self):
         for x in self.messages[self.lastMsg:]:
@@ -75,8 +75,10 @@ class level:
     def draw(self, screen):
         for x in self.obstaclesOnscreen:
             pygame.draw.rect(screen, globalConst.colors["secondary"], x, x.fill)
-        for x in self.keys:
+        for i,x in enumerate(self.keys):
             pygame.draw.rect(screen, globalConst.colors["primary"], x.rect, x.line)
+            keybind = globalConst.font.render(pygame.key.name(globalConst.keybinds[i]), False, globalConst.colors["primary"])
+            screen.blit(keybind , x.rect)
         pygame.draw.rect(screen, globalConst.colors["primary"],self.progressBar.get_bar(self.tick), self.progressBar.get_flash(self.tick) )
 
     def inp(self, inpQ):
@@ -117,13 +119,13 @@ class score:
         line2 = list("Efficiency: " + str(self.score.efficiency) +"%")
         line3 = list("Final Score: " + str(self.score.final))
         for i in range (0, (self.tick//(globalConst.tps//20))):
-            text1 = globalConst.font.render("".join(line1[0:i]), False, globalConst.colors["secondary"])
-            text2 = globalConst.font.render("".join(line2[0:i]), False, globalConst.colors["secondary"])
-            text3 = globalConst.font.render("".join(line3[0:i]), False, globalConst.colors["secondary"])
+            text1 = globalConst.font.render("".join(line1[0:i]), False, globalConst.colors["primary"])
+            text2 = globalConst.font.render("".join(line2[0:i]), False, globalConst.colors["primary"])
+            text3 = globalConst.font.render("".join(line3[0:i]), False, globalConst.colors["primary"])
             screen.blit(text1,(420,100))
             screen.blit(text2,(420,200))
             screen.blit(text3,(420,300))
-        self.btn1.draw(screen, globalConst.colors["secondary"], "Hauptmenü", globalConst.font)
+        self.btn1.draw(screen, globalConst.colors["primary"], "Hauptmenü", globalConst.font)
 
     def update(self, inpQ):
         self.tick += 1
@@ -137,12 +139,21 @@ class menu:
         self.nextScene = self
         self.btn1 = gameObjects.menuButton(pygame.Rect(100,100,1080,100))
         self.btn2 = gameObjects.menuButton(pygame.Rect(100,300,1080,100))
-        self.btn3 = gameObjects.menuButton(pygame.Rect(100,500,1080,100))
+        self.btn3_1 = gameObjects.menuButton(pygame.Rect(100,500,540,100))
+        self.btn3_2 = gameObjects.menuButton(pygame.Rect(640,500,540,100))
+
 
     def draw(self, screen):
-        self.btn1.draw(screen, globalConst.colors["secondary"], "Custom Level", globalConst.font)
-        self.btn2.draw(screen, globalConst.colors["secondary"], "TEXT", globalConst.font)
-        self.btn3.draw(screen, globalConst.colors["secondary"], "TEXT", globalConst.font)
+        if globalConst.rows == 4:
+            line_dif1 = 6
+            line_dif2 = 1
+        else:
+            line_dif1 = 1
+            line_dif2 = 6
+        self.btn1.draw(screen, globalConst.colors["primary"], "Custom Level", globalConst.font)
+        self.btn2.draw(screen, globalConst.colors["primary"], "Presets", globalConst.font)
+        self.btn3_1.draw(screen, globalConst.colors["primary"], "EASY", globalConst.font, line_dif1)
+        self.btn3_2.draw(screen, globalConst.colors["primary"], "HARD!", globalConst.font, line_dif2)
 
     def update(self, inpQ):
         if self.btn1.get_press(inpQ):
@@ -150,25 +161,32 @@ class menu:
             file = tkinter.filedialog.askopenfilename()
             window.destroy()
             self.nextScene = loading(file)
+        if self.btn2.get_press(inpQ):
+            self.nextScene = preset()
+        if self.btn3_1.get_press(inpQ):
+            globalConst.update_dif(1)
+        if self.btn3_2.get_press(inpQ):
+            globalConst.update_dif(2)
 
     def next_scene(self):
         return self.nextScene
 
 class loading:
-    def __init__(self, file):
+    def __init__(self, file, channels = [0]):
         self.file = file
+        self.channels = channels
         self.nextScene = self
         self.firstCall = True
         self.tick = 0
         (threading.Thread(target=self.parseFile)).start()
-
+        print(channels)
     def draw(self, screen):
         strings = [
             "Loading level",
             "." * ((self.tick//(globalConst.tps//10))%10),
         ]
         for i,x in enumerate(strings):
-            text = globalConst.font.render(x, False, globalConst.colors["secondary"])
+            text = globalConst.font.render(x, False, globalConst.colors["primary"])
             screen.blit(text, (420, 100*(i+1)))
 
     def update(self, inpQ):
@@ -180,32 +198,32 @@ class loading:
     def parseFile(self):
         mid = mido.MidiFile(self.file) #convert midi file to mido.mid object
         midiHeroTrack = parse.midi_tick2(mid, globalConst.tps)
-        self.nextScene = startlvl(self.file, midiHeroTrack)
+        self.nextScene = startlvl(self.file, midiHeroTrack, self.channels)
 
 class startlvl:
-    def __init__(self, file, track, channels = [0]):
+    def __init__(self, file, track, channels):
         self.file = file
         self.track = track
         self.nextScene = self
         self.channels = channels
-        self.box1 = gameObjects.menuButton(pygame.Rect(100,100,800,100))
-        self.box2 = gameObjects.menuButton(pygame.Rect(100,200,800,100))
-        self.box3 = gameObjects.menuButton(pygame.Rect(100,300,800,100))
-        self.btn1 = gameObjects.menuButton(pygame.Rect(100,600,800,100))
+        self.box1 = gameObjects.menuButton(pygame.Rect(100,100,1080,100))
+        self.box2 = gameObjects.menuButton(pygame.Rect(100,200,1080,100))
+        self.box3 = gameObjects.menuButton(pygame.Rect(100,300,1080,100))
+        self.btn1 = gameObjects.menuButton(pygame.Rect(100,600,1080,100))
         self.chBtns = []
         for i in range (0, 16):
-            self.chBtns.append(gameObjects.menuButton(pygame.Rect(100+(i*50),400,50,100)))
+            self.chBtns.append(gameObjects.menuButton(pygame.Rect(380+(i*50),300,50,100)))
 
     def draw(self, screen):
-        self.box1.draw(screen, globalConst.colors["secondary"], "File: " + ((self.file).split("/"))[-1], globalConst.font)
-        self.box2.draw(screen, globalConst.colors["secondary"], "BPM: " + str(self.track.get_bpm()), globalConst.font)
-        self.box3.draw(screen, globalConst.colors["secondary"], "Channels: ", globalConst.font)
-        self.btn1.draw(screen, globalConst.colors["secondary"], "START", globalConst.font, 6)
+        self.box1.draw(screen, globalConst.colors["primary"], "File: " + ((self.file).split("/"))[-1], globalConst.font)
+        self.box2.draw(screen, globalConst.colors["primary"], "BPM: " + str(self.track.get_bpm()), globalConst.font)
+        self.box3.draw(screen, globalConst.colors["primary"], "Channels: ", globalConst.font)
+        self.btn1.draw(screen, globalConst.colors["primary"], "START", globalConst.font, 6)
         for i,x in enumerate(self.chBtns):
             line = 1
             if i in self.channels:
                 line = 6
-            x.draw(screen, globalConst.colors["secondary"], str(i), globalConst.font, line)
+            x.draw(screen, globalConst.colors["primary"], str(i), globalConst.font, line)
 
     def update(self, inpQ):
         for i,x in enumerate(self.chBtns):
@@ -219,3 +237,31 @@ class startlvl:
 
     def next_scene(self):
         return self.nextScene
+
+class preset():
+        def __init__(self):
+            self.nextScene = self
+            self.btns = []
+            self.textRaw = []
+            self.text = []
+            with open("./presets.txt") as file:
+                for line in file:
+                    self.textRaw.append(line.replace("\n",""))
+            for x in self.textRaw:
+                sublist = x.split("|")
+                self.text.append(sublist)
+            for i,x in enumerate(self.text):
+                self.btns.append(gameObjects.menuButton(pygame.Rect(100,100*(i+1),1080,100)))
+            print(self.text)
+        def draw(self, screen):
+            for i,x in enumerate(self.btns):
+                string = self.text[i][0]+" "+self.text[i][1]
+                x.draw(screen, globalConst.colors["primary"], string, globalConst.font)
+
+        def update(self, inpQ):
+            for i,x in enumerate(self.btns):
+                if x.get_press(inpQ):
+                    self.nextScene = loading("./midi/"+self.text[i][0], list(map(int, self.text[i][1].split(","))))
+
+        def next_scene(self):
+            return self.nextScene
