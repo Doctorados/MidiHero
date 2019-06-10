@@ -1,5 +1,3 @@
-import mido
-
 class midiHeroTrack:
     def __init__(self):
         self.track = []
@@ -21,7 +19,7 @@ def midi_tick2(mid, gametps):
     tps = new.bps * tpb #miditicks per second
     multiplier = gametps / tps
 
-    for i, track in enumerate(mid.tracks):
+    for track in mid.tracks:
         tick = 0
         for msg in track:
             if msg.type == "set_tempo":

@@ -1,8 +1,4 @@
 import pygame
-import mido
-import time
-import gameObjects
-import parse
 import scenes
 import globalConst
 import sys

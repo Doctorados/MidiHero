@@ -1,5 +1,4 @@
 import pygame
-import random
 
 class obstacle:
     def __init__(self, channel, note, start, end):
