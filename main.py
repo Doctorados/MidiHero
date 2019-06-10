@@ -10,7 +10,6 @@ import sys
 
 clock = pygame.time.Clock()
 screen = pygame.display.set_mode(globalConst.size, pygame.HWSURFACE)
-print(pygame.display.get_driver())
 scene = scenes.menu()
 
 def output(scene):
@@ -21,7 +20,6 @@ def output(scene):
 while True:
     inpQ = pygame.event.get()
     if any(x.type == pygame.QUIT for x in inpQ): #check for window close
-        print("BRUDER MUSS LOS")
         pygame.display.quit()
         pygame.quit()
         sys.exit(1)
