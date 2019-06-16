@@ -1,5 +1,6 @@
 import gameObjects
 import mido
+import mido.backends.rtmidi
 import parse
 import pygame
 import tkinter
@@ -16,7 +17,7 @@ class level:
         self.tick = 0 # current tick / current iteration
         self.channels = channels # list of channels that generate obstacles
         self.bus = mido.open_output(mido.get_output_names()[0]) # get name of first available midi output port and set it as the programs audio output
-        self.midiHeroTrack = track #convert mido.mid object to custom midiHero object
+        self.midiHeroTrack = track
         self.messages = self.midiHeroTrack.track #list of midi messages
         self.obstacles = gameObjects.create_obstacles(self.messages,  self.channels) #generate a list of obstacles
         self.keys = self.gen_keys() #generate keys the player has to play
@@ -29,9 +30,6 @@ class level:
         for i in range(0, globalConst.rows):
             keys.append(gameObjects.pianoKey(i, pygame.Rect(i*(1280 / globalConst.rows), 540, (1280 / globalConst.rows),120)))
         return keys
-
-    def bus_output(self, msg):
-        self.bus.send(msg)
 
     def update_onscreen_obs(self):
         for x in self.obstaclesOnscreen:
@@ -48,7 +46,7 @@ class level:
 
     def play_messages(self):
         for x in self.messages[self.lastMsg:]:
-            if x.time + 660 > self.tick:
+            if x.time + 660 > self.tick: #660px delay to play Message after it passed keys
                 break
             if x.time + 660 == self.tick:
                 self.lastMsg += 1
@@ -56,20 +54,20 @@ class level:
                     if x.channel in self.channels and x.velocity != 0:
                         self.score.max +=1
                         if not [x.note, x.time] in self.activeObs:
-                            x.velocity = 0
+                            x.velocity = 0 #velocity 0 causes Note to be silent
                         else:
                             self.score.scored +=1
                             self.activeObs.remove([x.note, x.time])
-                self.bus_output(x)
+                self.bus.send(x)
 
-    def gen_onscreen_obs(self):
+    def gen_onscreen_obs(self): #generate obstacles currently on screen
         for x in self.obstacles[self.lastObstacle:]:
-            if x.start > self.tick:
+            if x.start > self.tick: #break if too early for next obstacle
                 break
             if x.start == self.tick:
                 self.lastObstacle += 1
                 x.row = (x.note % globalConst.rows)
-                x.rect = pygame.Rect(((1280 / globalConst.rows) * x.row + ((1280 / globalConst.rows)/ 2)), 0, 15, x.length)
+                x.rect = pygame.Rect(((1280 / globalConst.rows) * x.row + ((1280 / globalConst.rows)/ 2)), 0, 15, x.length) #create rect for obstacle
                 self.obstaclesOnscreen.append(x)
 
     def draw(self, screen):
@@ -156,16 +154,16 @@ class menu:
         self.btn3_2.draw(screen, globalConst.colors["primary"], "HARD!", globalConst.font, line_dif2)
 
     def update(self, inpQ):
-        if self.btn1.get_press(inpQ):
+        if self.btn1.get_press(inpQ): #select custom file
             window = tkinter.Tk()
             file = tkinter.filedialog.askopenfilename()
-            window.destroy()
+            window.destroy() #close file selector window
             self.nextScene = loading(file)
-        if self.btn2.get_press(inpQ):
+        if self.btn2.get_press(inpQ): #select preset
             self.nextScene = preset()
-        if self.btn3_1.get_press(inpQ):
+        if self.btn3_1.get_press(inpQ): #easy difficulty
             globalConst.update_dif(1)
-        if self.btn3_2.get_press(inpQ):
+        if self.btn3_2.get_press(inpQ): #hard difficulty
             globalConst.update_dif(2)
 
     def next_scene(self):
@@ -183,7 +181,7 @@ class loading:
     def draw(self, screen):
         strings = [
             "Loading level",
-            "." * ((self.tick//(globalConst.tps//10))%10),
+            "." * ((self.tick//(globalConst.tps//10))%10), #show on dot every 1/10 of a second, 9 max
         ]
         for i,x in enumerate(strings):
             text = globalConst.font.render(x, False, globalConst.colors["primary"])
@@ -244,15 +242,14 @@ class preset():
             self.btns = []
             self.textRaw = []
             self.text = []
-            with open("./presets.txt") as file:
+            with open("./presets.txt") as file: #open the presets .txt
                 for line in file:
-                    self.textRaw.append(line.replace("\n",""))
+                    self.textRaw.append(line.replace("\n","")) #replace newline characters
             for x in self.textRaw:
-                sublist = x.split("|")
+                sublist = x.split("|") #create list with | as divider
                 self.text.append(sublist)
             for i,x in enumerate(self.text):
                 self.btns.append(gameObjects.menuButton(pygame.Rect(100,100*(i+1),1080,100)))
-            print(self.text)
         def draw(self, screen):
             for i,x in enumerate(self.btns):
                 string = self.text[i][0]+" "+self.text[i][1]

@@ -10,7 +10,7 @@ class obstacle:
         self.length = (end - start)
         self.rect = pygame.Rect(0, 0, 0, 0)
         self.fill = 1
-    def isPlayed(self, key):
+    def isPlayed(self, key): #check collision between arg1 and obstacle
         return self.rect.colliderect(key.rect)
 
 class score:
@@ -21,7 +21,7 @@ class score:
         self.max = 0
         self.final = 0
         self.efficiency = 100
-    def calc_score(self):
+    def calc_score(self): #calculate the scor
          self.multiplier = (self.max / (self.wrongKey + self.max +1))
          self.efficiency = int(self.multiplier *100)
          self.final = round(self.scored * self.multiplier)
@@ -33,11 +33,11 @@ class progressBar:
         self.max = max
         self.flashTime = tps / (int(bps) * 2)
         self.flash = 0
-    def get_bar(self, tick):
+    def get_bar(self, tick): #get current bar (length)
         self.progress = int((1280 * (tick / (self.max +660))))
         bar = pygame.Rect(0, 0, self.progress, 10)
         return bar
-    def get_flash(self, tick):
+    def get_flash(self, tick): #check bar should be filled or empty, flash with beat
         if tick % self.flashTime == 0:
             self.flash = 1 - self.flash
         return self.flash
@@ -48,7 +48,7 @@ class pianoKey:
         self.row = row
         self.active = False
         self.rect = rect
-    def switch(self, val):
+    def switch(self, val): #switch fill and state
         if val:
             self.line = 0
             self.active = True
@@ -59,23 +59,17 @@ class pianoKey:
 class menuButton:
     def __init__(self, rect):
         self.rect = rect
-    def draw(self, screen, color, string, font, line = 1):
+    def draw(self, screen, color, string, font, line = 1): #draw button
         text = font.render(string, False, color)
         pygame.draw.rect(screen, color, self.rect, line)
         screen.blit(text, (self.rect[0] +5, self.rect[1]+(self.rect[3]/2)))
-    def get_press(self, inpQ):
+    def get_press(self, inpQ): #check if button was pressed
         for event in inpQ:
             if event.type == pygame.MOUSEBUTTONUP:
                 if self.rect.collidepoint(pygame.mouse.get_pos()):
                     return True
                 else:
                     return False
-
-def onlyNotes(msg):
-    if msg.type == "note_on":
-        return True
-    else:
-        return False
 
 def create_obstacles(messages, channels): #creates list of obstacles
     obstacles = []

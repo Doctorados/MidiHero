@@ -10,7 +10,7 @@ colors = {"primary": ( 255, 255, 255),
     }
 font = pygame.font.SysFont('Courier New', 30, bold=True)
 
-def update_dif(dif):
+def update_dif(dif): #update difficulty
     global rows
     global keybinds
     if dif == 1:
